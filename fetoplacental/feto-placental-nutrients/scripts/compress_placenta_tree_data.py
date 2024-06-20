@@ -8,8 +8,7 @@ from os import path
 
 import placenta_tree_extract_process_results_updated as pl
 
-TreeLabels = ['output-normal']
-TreeFilenames = ['output-normal']
+TreeLabels = ['.']
 
 def process_and_compress_trees(node_fname, elem_fname, term_fname, rad_fname, \
                                press_fname, flow_fname, flux_vals,  Ntrees, \
@@ -52,5 +51,5 @@ def compress_trees(PathToTrees, node_fname, elem_fname, term_fname, rad_fname, \
 
     process_and_compress_trees(node_fname, elem_fname, term_fname, rad_fname, \
                                press_fname, flow_fname, flux_vals, Ntrees, full_paths, \
-                               'tree_flux_sweep_series.pbz2')
+                               PathToTrees + '/tree_flux_sweep_series.pbz2')
 

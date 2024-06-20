@@ -1,11 +1,11 @@
 import sys
 import numpy as np
-sys.path.append('./headers')
+sys.path.append('./scripts')
 import compress_placenta_tree_data as cmpl
 
 #This script converts UoA format outputs to UoM format outputs
 
-PathToTrees = './'
+PathToTrees = './output-normal'
 
 flux_vals = np.array([20,40,60,80,100,150,200,250,300,350,400,450,500],dtype=float)
 node_fname = 'full_tree.exnode'
