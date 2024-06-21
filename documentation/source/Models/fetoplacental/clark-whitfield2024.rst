@@ -19,6 +19,14 @@ You also need to properly install `pyjulia <https://pyjulia.readthedocs.io/en/la
 
 You will need other python libraries. These are listed under pyrequirements.txt in the model example directory.
 
+Within Julia you will need to do the following:
+
+.. code-block:: julia
+
+    import Pkg
+    Pkg.add("SpecialFunctions")
+    Pkg.add("Distributions")
+
 Step 1 - run perfusion models
 =============================
 
@@ -108,7 +116,108 @@ simply run:
 
     python step2_data_conversion.py
 
+This script will create two files in your output-normal directory:
+
+.. code-block:: console
+
+    tree_flux_sweep.pbz2
+    tree_flux_sweep_terminal.pbz2
 
 Step 3 - run nutrient transport model
 =====================================
+
+The next step is to run the nutrient transport model:
+
+.. code-block:: console
+
+    python step3_nutrienttransport.py
+
+First we import required python packages, including the julia code which solves the model:
+
+.. code-block:: python
+
+    from julia import Main
+    Main.include("./scripts/calculate_villous_fluxes.jl")
+    import numpy as np
+    import sys
+    sys.path.append('./scripts')
+    import placenta_calculations as pcalc
+
+Next, we need to define output diretories, the inlet flux values we are intterested in, and properties of the placental micro-vascular tree
+
+.. code-block:: python
+
+    TreeFilenames = ["normal"]
+    outputdir = 'output-normal/'
+    inputdir = outputdir
+    flux_vals = np.array([20,40,60,80,100,150,200,250,300,350,400,450,500],dtype=float)
+    Nparallel = 1        #Number of convolute units in parallel
+    Nseries = 3          #Number of terminal villi in a row from a single mature intermediate villous
+    Nparallel_cap = 1    #Number of parallel capillaries in an imaged convolute (leiser), typically 1
+    Nconv = 10       #as per leiser 10 terminal conduits in a single feeding vessel (typically 10)
+    Ngens = 3   #Typically 3
+    tree_path = outputdir+'/tree_flux_sweep.pbz2'
+    term_path = outputdir+'/tree_flux_sweep_terminal.pbz2'
+    villous_flux_dir = outputdir
+
+We load in our terminal flow results from our perdusion simulations:
+
+.. code-block:: python
+
+    term_props = Main.load_pickle(decompress(term_path))
+
+and we calculate nutrient flux for each terminal unit, under each flow condition:
+
+.. code-block:: python
+
+    Main.calculate_and_save_allfluxes(outputdir,
+                    term_props[0], TreeFilenames, flux_vals,
+                    Nparallel, Nseries, Nparallel_cap, Nconv, Ngens, use_full_res=True)
+
+Finally we calculate and save all model output measures interest, at any given flow inlet value (here 250 ml/min)
+
+.. code-block:: python
+
+    vtk_print_fluxes = np.array([250])    #flux value to produce vtk file for
+    pcalc.calculate_and_save_measures(outputdir+"/flux_sweep_outcomes.pkl", \
+        tree_path, term_path, villous_flux_dir, ['normal'], ['normal'], \
+        pcalc.SoluteNames, pcalc.DC, pcalc.B, pcalc.Dt, Nparallel, Nseries, Nparallel_cap, Nconv, Ngens, \
+        vtk_print_fluxes)
+
+Your output-normal directory should now contain a number of files and sub-directories:
+
+.. code-block:: console
+
+    normal_np1ns3_flux_250_term.vtk	tree_flux_sweep.pbz2
+    normal_np1ns3_flux_250_tree.vtk	tree_flux_sweep_terminal.pbz2
+    output_flowbc_100.0ml_min_0.0	tv_fluxes_normal_flow100.pkl
+    output_flowbc_150.0ml_min_0.0	tv_fluxes_normal_flow150.pkl
+    output_flowbc_20.0ml_min_0.0	tv_fluxes_normal_flow20.pkl
+    output_flowbc_200.0ml_min_0.0	tv_fluxes_normal_flow200.pkl
+    output_flowbc_250.0ml_min_0.0	tv_fluxes_normal_flow250.pkl
+    output_flowbc_300.0ml_min_0.0	tv_fluxes_normal_flow300.pkl
+    output_flowbc_350.0ml_min_0.0	tv_fluxes_normal_flow350.pkl
+    output_flowbc_40.0ml_min_0.0	tv_fluxes_normal_flow40.pkl
+    output_flowbc_400.0ml_min_0.0	tv_fluxes_normal_flow400.pkl
+    output_flowbc_450.0ml_min_0.0	tv_fluxes_normal_flow450.pkl
+    output_flowbc_50.0ml_min_0.0	tv_fluxes_normal_flow500.pkl
+    output_flowbc_500.0ml_min_0.0	tv_fluxes_normal_flow60.pkl
+    output_flowbc_60.0ml_min_0.0	tv_fluxes_normal_flow80.pkl
+
+Step 4 - plot some results!
+===========================
+
+Now, we get to look at results, note that when you become familiar with data structures you will be able to plot results however you see fit.
+
+.. code-block:: console
+
+    python step4_plotting.py
+
+This will produce two png figures in your output-normal directory
+
+.. figure:: terminal_flow.png
+   :alt: Distribution of terminal flows in the placenta.
+
+.. figure:: flow_vs_absolute_uptake_oxygen.png
+   :alt: Placental oxygen uptake as a function of inlet (umbilical) flow.
 
