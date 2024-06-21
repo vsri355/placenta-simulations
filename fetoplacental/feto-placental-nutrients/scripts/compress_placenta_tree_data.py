@@ -1,7 +1,4 @@
 import numpy as np
-import pandas as pd
-import bz2
-import pickle
 import _pickle as cPickle
 import bz2
 from os import path
@@ -51,5 +48,5 @@ def compress_trees(PathToTrees, node_fname, elem_fname, term_fname, rad_fname, \
 
     process_and_compress_trees(node_fname, elem_fname, term_fname, rad_fname, \
                                press_fname, flow_fname, flux_vals, Ntrees, full_paths, \
-                               PathToTrees + '/tree_flux_sweep_series.pbz2')
+                               PathToTrees + '/tree_flux_sweep.pbz2')
 

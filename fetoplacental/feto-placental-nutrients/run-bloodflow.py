@@ -80,11 +80,11 @@ def main(args=None):
         inlet_pressure = 6650  # Pa (~50mmHg)
         outlet_pressure = 2660  # Pa (~20mmHg)
         inlet_flow = 0  # set to 0 for bc_type = pressure;
-
     if bc_type == 'flow':
         inlet_pressure = 0
         outlet_pressure = 2660
         inlet_flow = blood_flow_model_units/2.0   # mm3/s (flow is divided between two inlets)
+
 
     rheology_type = 'pries_vessel'
     vessel_type = 'elastic'

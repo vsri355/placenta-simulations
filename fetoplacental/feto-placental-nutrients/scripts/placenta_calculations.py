@@ -519,7 +519,7 @@ def calculate_and_save_measures(OutputName, TreePath, TermPath, FluxDir, TreeFil
                 TVPath = os.path.join(FluxDir,'tv_fluxes_' + TreeFileNames[j] + '_flow' + str(int(Fluxes[i])) + '.pkl')
                 print(TVPath)
                 Ntoth, Nmaxtoth, InvDaGlobalh, Nidealh = calc_all_uptakes(Networks[i,j], TermData[i,j],\
-                        Fluxes[i], TVPath, Solutes, TreeFileNames[j], TreeLabels[j], Ngens, Nconv,\
+                        Fluxes[i], TVPath, Solutes, FluxDir + TreeFileNames[j], TreeLabels[j], Ngens, Nconv,\
                         Nparallel, Nparallel_cap, Nseries, Dt, DC, B, bool_vtk)
                 Ntot[i,j,:] = Ntoth
                 Nmaxtot[i,j,:] = Nmaxtoth
@@ -579,48 +579,7 @@ def calculate_L_sensitivity(Nparallel,Nseries,Nparallel_cap,Nconv,Ngens):
     #print to file
     with open('../Compressed_data/Lsweep_outcomes.pkl','wb') as f:
         pickle.dump(Output, f)
-    
 
-    # #loop over some L, vary flow, one solute
-    # L_scales = np.array([0.2,0.5,1.0,2.0,5.0])
-    # L_vals = L_scales*L_vil
-    # Ns = len(SoluteNames)
-    # NL = len(L_vals)
-    # TreePath = '../Compressed_data/tree_flux_sweep_series.pbz2'
-    # FluxDir = '../Compressed_data/Series_trees'
-    # [Fluxes, Networks, TermData] = pickle.load(bz2.BZ2File(TreePath,'rb'))
-    # [NFluxes,NTrees] = np.shape(Networks)
-    # Ntot = np.zeros((NFluxes,NTrees,NL))
-    # Nmaxtot = np.zeros((NFluxes,NTrees,NL))
-    # Nideal= np.zeros((NFluxes,NTrees,NL))
-    # InvDaGlobal= np.zeros((NFluxes,NTrees,NL))
-    # iFluxes = np.arange(len(Fluxes))
-    # i = iFluxes[np.abs(Fluxes - 250) < 1E-3][0]
-    # s = 0
-    # for j in np.arange(NTrees):
-    #     TVPath = os.path.join(FluxDir,'tv_fluxes_' + cmpl.SerialTreeFilenames[j] +\
-    #              '_flow' + str(int(Fluxes[i])) + '.pkl')
-    #     FlowDict = pickle.load(open(TVPath,'rb'))
-    #     NTermTotal = np.sum(FlowDict['Nweights'])
-    #     for i in np.arange(NFluxes):
-    #         for il in np.arange(NL):
-    #             L_vil = L_vals[il]
-    #             Ntoth, Nmaxtoth, InvDaGlobalh, Nidealh = calc_all_uptakes(Networks[i,j], TermData[i,j],\
-    #                     Fluxes[i], TVPath, SoluteNames[s], cmpl.SerialTreeFilenames[j], cmpl.SerialTreeLabels[j],\
-    #                     Ngens, Nconv,Nparallel, Nparallel_cap, Nseries, Dt, DC, B)
-    #             Ntot[i,j,il] = Ntot[0]
-    #             Nmaxtot[i,j,il] = Nmaxtoth[0]
-    #             InvDaGlobal[i,j,il] = InvDaGlobalh[0]
-    #             Nideal[i,j,il] = Nidealh[0]
-
-
-    # Output =  {'Fluxes': Fluxes, 'LValues': L_vals, 'Solutes': SoluteNames[s], 'Total Exchange': \
-    #             Ntot, 'Max Exchange': Nmaxtot, 'Ideal Exchange': Nideal, \
-    #             'Inverse Damkohler Global': InvDaGlobal, 'Tree Labels': cmpl.SerialTreeLabels}
-
-    # #meso heterogeneity
-    # with open('../Compressed_data/L_fluxsweep_outcomes.pkl','wb') as f:
-    #     pickle.dump(Output, f)
 
 def do_minimisation(obs,guess):
 
