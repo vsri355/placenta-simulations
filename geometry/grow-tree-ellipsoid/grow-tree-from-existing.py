@@ -92,6 +92,8 @@ if(export_results or export_intermediates):
     export_file = export_directory + '/full_tree'
     pg.export_ex_coords(full_geom['nodes'],'placenta', export_file,'exnode')
     pg.export_exelem_1d(full_geom['elems'],'placenta', export_file)
+    pg.export_ip_coords(full_geom['nodes'][:, 1:4], 'placenta', export_file)
+    pg.export_ipelem_1d(full_geom['elems'], 'placenta', export_file)
     export_file = export_directory + '/terminals'
     pg.export_ex_coords(full_geom['term_loc'],'villous',export_file,'exdata')
 

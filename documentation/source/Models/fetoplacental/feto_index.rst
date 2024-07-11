@@ -8,3 +8,4 @@ This set of examples demonstrates the steps toward simulating function in the fe
     :maxdepth: 1
     
     steadyflow_index
+    transport_index

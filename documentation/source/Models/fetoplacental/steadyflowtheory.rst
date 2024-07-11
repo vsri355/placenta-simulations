@@ -15,7 +15,7 @@ Publications using these models include:
 
  - `Clark et al. Interface, 2015 <http://rsfs.royalsocietypublishing.org/content/5/2/20140078>`_.
  - `Tun et al. Scientific Reports, 2019 <https://www.nature.com/articles/s41598-019-46151-6>`_.
-
+ - `Byrne et al. J Theoret Biol, 2021 <https://www.sciencedirect.com/science/article/pii/S0022519321000527>`_.
 Theses using these models include:
 
  - `Win Min Tun, PhD, 2019 <https://catalogue.library.auckland.ac.nz/primo-explore/fulldisplay?docid=uoa_alma21309234220002091&vid=NEWUI&context=L>`_.

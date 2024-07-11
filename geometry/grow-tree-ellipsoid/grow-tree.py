@@ -136,14 +136,25 @@ if(export_intermediates):
 random_seed = 1
 full_geom=pg.grow_large_tree(angle_max_ft, angle_min_ft, fraction_ft, min_length_ft, point_limit_ft, volume, thickness, ellipticity, datapoints_villi, chorion_and_stem, random_seed)
 
-colour = np.ones(len(full_geom['elems']))
-radii = np.ones(len(full_geom['elems']))*0.1
+#Additional export of a tree with two inlets connected by an anastomosis
+full_geom_anast = pg.make_double_inlet_from_single(full_geom)
 
 # Export the final results
 if(export_results or export_intermediates):
     export_file = export_directory + '/full_tree'
     pg.export_ex_coords(full_geom['nodes'],'placenta', export_file,'exnode')
     pg.export_exelem_1d(full_geom['elems'],'placenta', export_file)
+    pg.export_ip_coords(full_geom['nodes'][:, 1:4], 'placenta', export_file)
+    pg.export_ipelem_1d(full_geom['elems'], 'placenta', export_file)
     export_file = export_directory + '/terminals'
     pg.export_ex_coords(full_geom['term_loc'],'villous',export_file,'exdata')
+    export_file = export_directory + '/full_tree_2umbs'
+    pg.export_ex_coords(full_geom_anast['nodes'], 'placenta', export_file, 'exnode')
+    pg.export_exelem_1d(full_geom_anast['elems'], 'placenta', export_file)
+    pg.export_ip_coords(full_geom_anast['nodes'][:, 1:4], 'placenta', export_file)
+    pg.export_ipelem_1d(full_geom_anast['elems'], 'placenta', export_file)
+    export_file = export_directory + '/terminals_2umbs'
+    pg.export_ex_coords(full_geom['term_loc'],'villous',export_file,'exdata')
+
+
 
