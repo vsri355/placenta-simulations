@@ -254,6 +254,7 @@ if __name__ == '__main__':
 
     input_img = sitk.ReadImage(file_path)
     input_img = input_img > 0
+
     output = process_file(input_img, spacing)
     with open(os.getcwd() + r'\output\output.txt', 'w') as f:
         for key in output.keys():
