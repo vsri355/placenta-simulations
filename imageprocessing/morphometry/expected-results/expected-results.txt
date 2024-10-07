@@ -1,0 +1,10 @@
+Villous CCMP: 1
+Intervillous CCMP: 652
+Area: 3897393.2800000007
+Volume: 48150621.18400001
+Porosity: 0.698545968876719
+Number of Terminal Branches: 2944
+Number of Branch points: 2944
+Number of Cycles: 2513
+Fractal Dimension: 2.9248030002530427
+Lacunarity: 0.33857695497797347

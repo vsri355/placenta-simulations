@@ -41,6 +41,7 @@ is needed prior to use.
    Models/uteroplacental/utero_index
    Models/fetoplacental/feto_index
    Models/fetal/fetal_index
+   Models/imageprocessing/image_index
 
 
 .. Indices and tables
