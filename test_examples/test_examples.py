@@ -19,7 +19,7 @@ def main():
     mydir = os.getcwd() # would be the same path as a.py
     export_logs_dir = mydir + '/' +  export_directory + '/'
     #--------------------------------------------------
-    #Test 1 - Grow tree
+    #Test  - Grow tree
     #-------------------------------------------------
     mydir_example1 = os.chdir("../geometry/grow-tree-ellipsoid")
     mydir_example1 =os.getcwd()
@@ -32,6 +32,34 @@ def main():
         print('Ellipsoid tree growing model works as expected')
     else:
         print('ERROR: Ellipsoid tree growing model has FAILED')
+        everything_worked = False
+    umbilical_worked = cr.compare_ellipsoid_tree_grow_2umb()
+    if(umbilical_worked):
+        print('Ellipsoid tree growing with two umbilical arteries works as expected')
+    else:
+        print('ERROR: Ellipsoid tree growing with two umbilical arteries has FAILED')
+        everything_worked = False
+
+    # --------------------------------------------------
+    # Test - Grow tree FGR
+    # -------------------------------------------------
+    mydir_example1 = os.chdir("../geometry/grow-tree-fgr")
+    mydir_example1 = os.getcwd()
+    os.system('rm -rf output/*')  # remove any files in the output directory
+    os.system('python grow-tree.py > ' + export_logs_dir + 'grow-tree.log')  # run the model -> export
+    # terminal output to log file
+    os.chdir(mydir)
+    perfusion_worked = cr.compare_ellipsoid_tree_grow()
+    if (perfusion_worked):
+        print('Ellipsoid FGR growing model works as expected')
+    else:
+        print('ERROR: Ellipsoid tree growing model has FAILED')
+        everything_worked = False
+    umbilical_worked = cr.compare_ellipsoid_tree_grow_2umb()
+    if (umbilical_worked):
+        print('Ellipsoid FGR growing with two umbilical arteries works as expected')
+    else:
+        print('ERROR: Ellipsoid FGR growing with two umbilical arteries has FAILED')
         everything_worked = False
 
     #--------------------------------------------------

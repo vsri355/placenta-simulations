@@ -173,6 +173,8 @@ def main():
     plt.plot(d[startpoint:endpoint, 0] - d[startpoint, 0],
              d[startpoint:endpoint, 18] / (20. * np.pi * r ** 4.))  # There are two umbolical arteries
     plt.show()
+    print("Umbilical artery volume flow")
+    print(np.mean(d[startpoint:endpoint, 18]))
 
 if __name__ == '__main__':
     main()
