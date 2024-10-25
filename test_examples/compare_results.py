@@ -75,7 +75,6 @@ def compare_perfusion_clark2015():
     return check_true
 
 def compare_perfusion_byrne2020():
-
     #read in the terminal .exnode file
     nodes_output = read_exnode('../fetoplacental/two_umb_arteries/output/terminal.exnode')
     nodes_expected = read_exnode('../fetoplacental/two_umb_arteries/expected-results-no-anast/terminal.exnode')
@@ -83,10 +82,16 @@ def compare_perfusion_byrne2020():
     return check_true
 
 def compare_ellipsoid_tree_grow():
-
     #read in the terminal .exnode file
     nodes_output = read_exnode('../geometry/grow-tree-ellipsoid/output/terminals.exdata')
     nodes_expected = read_exnode('../geometry/grow-tree-ellipsoid/expected-results/terminals.exdata')
+    check_true = np.isclose(nodes_output[:,:],nodes_expected[:,:]).all()
+    return check_true
+
+def compare_ellipsoid_tree_grow_2umb():
+    #read in the terminal .exnode file
+    nodes_output = read_exnode('../geometry/grow-tree-ellipsoid/output/terminals_2umbs.exdata')
+    nodes_expected = read_exnode('../geometry/grow-tree-ellipsoid/expected-results/terminals_2umbs.exdata')
     check_true = np.isclose(nodes_output[:,:],nodes_expected[:,:]).all()
     return check_true
 
