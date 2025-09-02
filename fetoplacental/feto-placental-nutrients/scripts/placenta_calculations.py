@@ -268,153 +268,159 @@ def plot_tree_vtk(filehead, network, *, NodeData = np.array([]), EdgeData = np.a
                   TermData = np.array([]), NodeNames = np.array([]), EdgeNames = np.array([]), \
                   TermNames = np.array([])):
     #output network (dict format) into .vtk format
-    #produces two files "filehead_tree.vtk" (a network of edges and nodes)
+    #produces three files "filehead_arterial.vtk" (a network of edges and nodes)
+    #               and "filehead_venous.vtk" (a network of edges and nodes)
     #               and "filehead_term.vtk" (terminal nodes containing terminal properties)
 
-    create_vessel_superedges(network)
-    filename = ("%s_tree.vtk"%filehead)
-    f  = open(filename,'w')
-    #write vtk legacy header
-    f.write("# vtk DataFile Version 2.0\nTree data %s\nASCII\nDATASET POLYDATA\n\n"%filehead)
-    Npts = len(network['Nodes'][0])
-    f.write("POINTS %d float\n"%Npts)
-    for k in np.arange(Npts):
-        f.write("%f %f %f\n"%(network['Nodes'][0][k],network['Nodes'][1][k],network['Nodes'][2][k]))
-
-    NSedges = len(network['VesselSuperedges'])
-    lensum = 0
-    for j in np.arange(NSedges):
-        lensum += 1 + len(network['VesselSuperedges'][j])
-    f.write("\nLINES %d %d\n" % (NSedges,lensum))
-    for j in np.arange(NSedges):
-        f.write("%d"%len(network['VesselSuperedges'][j]))
-        for k in network['VesselSuperedges'][j]:
-            f.write(" %d"%k)
-        f.write('\n')
-
-    f.write("\nPOINT_DATA %d\n" % (Npts))
-    f.write("\nSCALARS Pressure float 1\nLOOKUP_TABLE default\n")
-    for k in np.arange(Npts):
-        f.write("%.3e\n"%network['Pressure'][k])
-
-    #extra node data (if given) is printed here
-    if len(NodeData) > 0:
-        if len(np.shape(NodeData)) > 1:
-            ncols = np.shape(NodeData)[1]
-        else:
-            ncols = 1
-            NodeData = np.reshape(NodeData,(np.shape(NodeData)[0],1))
-        for nc in np.arange(ncols):
-            f.write("\nSCALARS ")
-            if len(NodeNames) > nc:
-                f.write("%s "%NodeNames[nc])
-            else:
-                f.write("NodeData%d "%nc)
-            f.write("float 1\nLOOKUP_TABLE default\n")
-            for k in np.arange(Npts):
-                f.write("%.3e\n"%NodeData[k,nc])
-
-    #need to convert all the edge data to node data
-    f.write("\nSCALARS Flux float 1\nLOOKUP_TABLE default\n")
-    for k in np.arange(Npts):
-        tot_flow = 0
-        count = 0
-        for jin in network["Edges_in"][k]:
-            tot_flow += network['Flows'][jin]
-            count += 1
-        for jout in network["Edges_out"][k]:
-            tot_flow += network['Flows'][jout]
-            count += 1 
-        f.write("%.3e\n"%(tot_flow/count))
-
-    f.write("\nSCALARS Radius float 1\nLOOKUP_TABLE default\n")
-    for k in np.arange(Npts):
-        tot_rad = 0
-        count = 0
-        for jin in network["Edges_in"][k]:
-            tot_rad += network['Radius'][jin]
-            count += 1
-        for jout in network["Edges_out"][k]:
-            tot_rad += network['Radius'][jout]
-            count += 1 
-        f.write("%.3e\n"%(tot_rad/count))
-
-    if len(EdgeData) > 0:
-        if len(np.shape(EdgeData)) > 1:
-            ncols = np.shape(EdgeData)[1]
-        else:
-            ncols = 1
-            EdgeData = np.reshape(EdgeData,(np.shape(EdgeData)[0],1))
-        for nc in np.arange(ncols):
-            f.write("\nSCALARS ")
-            if len(EdgeNames) > nc:
-                f.write("%s "%EdgeNames[nc])
-            else:
-                f.write("EdgeData%d "%nc)
-            f.write("float 1\nLOOKUP_TABLE default\n")
+    names = ["arterial","venous"]
+    av_networks, nns, ens, tns = split_networks(network)
+    for (inet, net) in enumerate(av_networks):
+        create_vessel_superedges(net)
+        filename = ("%s_%s_tree.vtk"%(filehead,names[inet]))
+        f  = open(filename,'w')
+        #write vtk legacy header
+        f.write("# vtk DataFile Version 2.0\nTree data %s\nASCII\nDATASET POLYDATA\n\n"%filehead)
+        Npts = len(net['Nodes'][0])
+        f.write("POINTS %d float\n"%Npts)
         for k in np.arange(Npts):
-            tot = 0
+            f.write("%f %f %f\n"%(net['Nodes'][0][k],net['Nodes'][1][k],net['Nodes'][2][k]))
+
+        NSedges = len(net['VesselSuperedges'])
+        lensum = 0
+        for j in np.arange(NSedges):
+            lensum += 1 + len(net['VesselSuperedges'][j])
+        f.write("\nLINES %d %d\n" % (NSedges,lensum))
+        for j in np.arange(NSedges):
+            f.write("%d"%len(net['VesselSuperedges'][j]))
+            for k in net['VesselSuperedges'][j]:
+                f.write(" %d"%k)
+            f.write('\n')
+
+        f.write("\nPOINT_DATA %d\n" % (Npts))
+        f.write("\nSCALARS Pressure float 1\nLOOKUP_TABLE default\n")
+        for k in np.arange(Npts):
+            f.write("%.3e\n"%net['Pressure'][k])
+
+        #extra node data (if given) is printed here
+        if len(NodeData) > 0:
+            if len(np.shape(NodeData)) > 1:
+                ncols = np.shape(NodeData)[1]
+            else:
+                ncols = 1
+                NodeData = np.reshape(NodeData,(np.shape(NodeData)[0],1))
+            for nc in np.arange(ncols):
+                f.write("\nSCALARS ")
+                if len(NodeNames) > nc:
+                    f.write("%s "%NodeNames[nc])
+                else:
+                    f.write("NodeData%d "%nc)
+                f.write("float 1\nLOOKUP_TABLE default\n")
+                for k in np.arange(Npts):
+                    f.write("%.3e\n"%NodeData[nns[inet][k],nc])
+
+        #need to convert all the edge data to node data
+        f.write("\nSCALARS Flux float 1\nLOOKUP_TABLE default\n")
+        for k in np.arange(Npts):
+            tot_flow = 0
             count = 0
-            for jin in network["Edges_in"][k]:
-                tot += EdgeData[jin,nc]
+            for jin in net["Edges_in"][k]:
+                tot_flow += net['Flows'][jin]
                 count += 1
-            for jout in network["Edges_out"][k]:
-                tot += EdgeData[jout,nc]
+            for jout in net["Edges_out"][k]:
+                tot_flow += net['Flows'][jout]
                 count += 1 
-            f.write("%.3e\n"%(tot/count))
+            f.write("%.3e\n"%(tot_flow/count))
 
-    # f.write("\nCELL_DATA %d\n" % (Nedges))
+        f.write("\nSCALARS Radius float 1\nLOOKUP_TABLE default\n")
+        for k in np.arange(Npts):
+            tot_rad = 0
+            count = 0
+            for jin in net["Edges_in"][k]:
+                tot_rad += net['Radius'][jin]
+                count += 1
+            for jout in net["Edges_out"][k]:
+                tot_rad += net['Radius'][jout]
+                count += 1 
+            f.write("%.3e\n"%(tot_rad/count))
 
-    # f.write("\nSCALARS Flux float 1\nLOOKUP_TABLE default\n")
-    # for j in np.arange(Nedges):
-    #     f.write("%.3e\n"%network['Flows'][j])
+        if len(EdgeData) > 0:
+            if len(np.shape(EdgeData)) > 1:
+                ncols = np.shape(EdgeData)[1]
+            else:
+                ncols = 1
+                EdgeData = np.reshape(EdgeData,(np.shape(EdgeData)[0],1))
+            for nc in np.arange(ncols):
+                f.write("\nSCALARS ")
+                if len(EdgeNames) > nc:
+                    f.write("%s "%EdgeNames[nc])
+                else:
+                    f.write("EdgeData%d "%nc)
+                f.write("float 1\nLOOKUP_TABLE default\n")
+            for k in np.arange(Npts):
+                tot = 0
+                count = 0
+                for jin in net["Edges_in"][k]:
+                    tot += EdgeData[ens[inet][jin],nc]
+                    count += 1
+                for jout in net["Edges_out"][k]:
+                    tot += EdgeData[ens[inet][jout],nc]
+                    count += 1 
+                    f.write("%.3e\n"%(tot/count))
 
-    # f.write("\nSCALARS Radius float 1\nLOOKUP_TABLE default\n")
-    # for j in np.arange(Nedges):
-    #     f.write("%.3e\n"%network['Radius'][j])
+        # f.write("\nCELL_DATA %d\n" % (Nedges))
 
-    # #extra edge data (if given) is printed here
-    # if len(EdgeData) > 0:
-    #     if len(np.shape(EdgeData)) > 1:
-    #         ncols = np.shape(EdgeData)[1]
-    #     else:
-    #         ncols = 1
-    #         EdgeData = np.reshape(EdgeData,(np.shape(EdgeData)[0],1))
-    #     for nc in np.arange(ncols):
-    #         f.write("\nSCALARS ")
-    #         if len(EdgeNames) > nc:
-    #             f.write("%s "%EdgeNames[nc])
-    #         else:
-    #             f.write("EdgeData%d "%nc)
-    #         f.write("float 1\nLOOKUP_TABLE default\n")
-    #         for k in np.arange(Nedges):
-    #             f.write("%.3e\n"%EdgeData[k,nc])
+        # f.write("\nSCALARS Flux float 1\nLOOKUP_TABLE default\n")
+        # for j in np.arange(Nedges):
+        #     f.write("%.3e\n"%net['Flows'][j])
 
-    # f.write("\nVECTORS EdgeVec float\nLOOKUP_TABLE default\n")
-    # for j in np.arange(Nedges):
-    #     kout = network['Edges'][1][j] 
-    #     kin = network['Edges'][0][j]
-    #     direction = np.zeros(3)
-    #     for n in np.arange(3):
-    #         direction[n] = network['Nodes'][n][kout] - network['Nodes'][n][kin]
-    #     f.write("%f %f %f\n"%(direction[0],direction[1],direction[2]))
+        # f.write("\nSCALARS Radius float 1\nLOOKUP_TABLE default\n")
+        # for j in np.arange(Nedges):
+        #     f.write("%.3e\n"%net['Radius'][j])
 
-    # f.close()
+        # #extra edge data (if given) is printed here
+        # if len(EdgeData) > 0:
+        #     if len(np.shape(EdgeData)) > 1:
+        #         ncols = np.shape(EdgeData)[1]
+        #     else:
+        #         ncols = 1
+        #         EdgeData = np.reshape(EdgeData,(np.shape(EdgeData)[0],1))
+        #     for nc in np.arange(ncols):
+        #         f.write("\nSCALARS ")
+        #         if len(EdgeNames) > nc:
+        #             f.write("%s "%EdgeNames[nc])
+        #         else:
+        #             f.write("EdgeData%d "%nc)
+        #         f.write("float 1\nLOOKUP_TABLE default\n")
+        #         for k in np.arange(Nedges):
+        #             f.write("%.3e\n"%EdgeData[k,nc])
 
+        # f.write("\nVECTORS EdgeVec float\nLOOKUP_TABLE default\n")
+        # for j in np.arange(Nedges):
+        #     kout = net['Edges'][1][j] 
+        #     kin = net['Edges'][0][j]
+        #     direction = np.zeros(3)
+        #     for n in np.arange(3):
+        #         direction[n] = net['Nodes'][n][kout] - net['Nodes'][n][kin]
+        #     f.write("%f %f %f\n"%(direction[0],direction[1],direction[2]))
+
+        # f.close()
+
+    
+    
     #terminal nodes file
-    filenamet = ("%s_term.vtk"%filehead)
+    filenamet = ("%s_term.vtk"%(filehead))
     ft = open(filenamet,'w')
     ft.write("# vtk DataFile Version 2.0\nTerm data %s\nASCII\nDATASET UNSTRUCTURED_GRID\n\n"%filehead)
-    Ntnodes = len(network['Term_nodes'])
+    Ntnodes = len(net['Term_nodes'])
     ft.write("POINTS %d float\n"%Ntnodes)
-    for k in network['Term_nodes']:
-        ft.write("%f %f %f\n"%(network['Nodes'][0][k],network['Nodes'][1][k],network['Nodes'][2][k]))
+    for k in net['Term_nodes']:
+        ft.write("%f %f %f\n"%(net['Nodes'][0][k],net['Nodes'][1][k],net['Nodes'][2][k]))
 
 
     ft.write("\nPOINT_DATA %d\n" % (Ntnodes))
     ft.write("\nSCALARS Pressure float\nLOOKUP_TABLE default\n")
-    for k in network['Term_nodes']:
-        ft.write("%.3e\n"%network['Pressure'][k])
+    for k in net['Term_nodes']:
+        ft.write("%.3e\n"%net['Pressure'][k])
 
     #extra data (if given) for terminal nodes
     if len(TermData) > 0:
